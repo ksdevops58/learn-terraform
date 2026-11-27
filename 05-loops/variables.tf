@@ -29,3 +29,10 @@ variable "instances" {
     default = ["mongodb","redis","mysql","rabbitmq","catalogue","user","cart","shipping","payment","frontend"]
 } 
 
+variable "zone_id" {
+    default = "Z08201822DLYEN8YY7HD"
+}
+
+variable domain_name {
+    default = "sdaws1.store"
+}
