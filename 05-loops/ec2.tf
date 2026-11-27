@@ -1,5 +1,6 @@
 resource "aws_instance" "roboshop"{
-    count = 10
+    #count = 10
+    count = length(var.instances)
     instance_type = var.instance_type
     ami = var.ami_id
     vpc_security_group_ids = [aws_security_group.common.id,
@@ -30,7 +31,8 @@ resource "aws_security_group" "common" {
     }
 
 resource "aws_security_group" "roboshop" {
-    count = 10
+    #count = 10
+    count=length(var.instances)
     name = "${var.project}-${var.environment}-${var.instances[count.index]}"
     description = "A component SG for the instances of roboshop"
 
@@ -58,9 +60,22 @@ resource "aws_security_group" "roboshop" {
 
 resource "aws_route53_record" "roboshop" {
     count = 10
+    #count = length(var.instances)
     zone_id = var.zone_id
-    name    = "${var.instances[count.index]}-${var.domain_name}"
+    name    = "${var.instances[count.index]}.${var.domain_name}"
     type    = "A"
-    ttl     = "300"
+    ttl     = 60
     records = [aws_instance.roboshop[count.index].private_ip]
+    allow_overwrite = true
+}
+
+resource "aws_route53_record" "frontend" {
+    count = contains(var.instances,"frontend") ? 1 : 0 
+    zone_id = var.zone_id
+    name = "${var.domain_name}"
+    type = "A"
+    ttl = 60
+    records = [aws_instance.roboshop[index(var.instances,"frontend")].public_ip]
+    allow_overwrite = true
+
 }
